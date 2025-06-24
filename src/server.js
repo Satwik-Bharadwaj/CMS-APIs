@@ -7,6 +7,12 @@ require('dotenv').config();
 const paymentRoutes = require('./routes/payment.routes');
 const projectRoutes = require('./routes/project.routes');
 const userRoutes = require('./routes/user.routes');
+const paymentPlanRoutes = require('./routes/payment_plan.routes');
+const rateListRoutes = require('./routes/rate_list.routes');
+const drawingRoutes = require('./routes/drawing.routes');
+const materialRoutes = require('./routes/material.routes');
+const labourBillRoutes = require('./routes/labourBill.routes');
+const labourPaymentRoutes = require('./routes/labourPayment.routes');
 
 const app = express();
 
@@ -25,6 +31,12 @@ app.get('/test', (req, res) => {
 app.use('/api/payments', paymentRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/payment-plans', paymentPlanRoutes);
+app.use('/api/rate-lists', rateListRoutes);
+app.use('/api/drawings', drawingRoutes);
+app.use('/api/materials', materialRoutes);
+app.use('/api/labour-bills', labourBillRoutes);
+app.use('/api/labour-payments', labourPaymentRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {
