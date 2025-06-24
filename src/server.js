@@ -28,15 +28,15 @@ app.get('/test', (req, res) => {
 });
 
 // Routes
-app.use('/api/payments', paymentRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/payment-plans', paymentPlanRoutes);
-app.use('/api/rate-lists', rateListRoutes);
-app.use('/api/drawings', drawingRoutes);
-app.use('/api/materials', materialRoutes);
-app.use('/api/labour-bills', labourBillRoutes);
-app.use('/api/labour-payments', labourPaymentRoutes);
+app.use('/api/v1/payments', paymentRoutes);
+app.use('/api/v1/projects', projectRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/payment-plans', paymentPlanRoutes);
+app.use('/api/v1/rate-lists', rateListRoutes);
+app.use('/api/v1/drawings', drawingRoutes);
+app.use('/api/v1/materials', materialRoutes);
+app.use('/api/v1/labour-bills', labourBillRoutes);
+app.use('/api/v1/labour-payments', labourPaymentRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {

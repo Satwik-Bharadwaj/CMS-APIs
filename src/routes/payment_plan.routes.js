@@ -3,12 +3,15 @@ const router = express.Router();
 const paymentPlanController = require('../controllers/payment_plan.controller');
 
 // Create a new payment plan
-router.post('/', paymentPlanController.createPaymentPlan);
+// Create a new payment plan
+router.post('/create', paymentPlanController.createPaymentPlan);
 
 // Get all payment plans
-router.get('/', paymentPlanController.getAllPaymentPlans);
+// Get all payment plans
+router.get('/all', paymentPlanController.getAllPaymentPlans);
 
 // Update a payment plan
-router.put('/:id', paymentPlanController.updatePaymentPlan);
+// Update a payment plan by ID
+router.put('/update/:id', paymentPlanController.updatePaymentPlan);
 
 module.exports = router; 

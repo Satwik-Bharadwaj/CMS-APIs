@@ -3,12 +3,15 @@ const router = express.Router();
 const labourBillController = require('../controllers/labourBill.controller');
 
 // Create a new labour bill
-router.post('/', labourBillController.createLabourBill);
+// Create a new labour bill
+router.post('/create', labourBillController.createLabourBill);
 
 // Get all labour bills
-router.get('/', labourBillController.getAllLabourBills);
+// Get all labour bills
+router.get('/all', labourBillController.getAllLabourBills);
 
 // Update a labour bill
-router.put('/:id', labourBillController.updateLabourBill);
+// Update a labour bill by ID
+router.put('/update/:id', labourBillController.updateLabourBill);
 
 module.exports = router; 
