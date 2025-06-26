@@ -3,14 +3,11 @@ const router = express.Router();
 const userController = require('../controllers/user.controller');
 
 // Create a new user
-// Create a new user
 router.post('/create', userController.createUser);
 
 // Get all users
-// Get all users
 router.get('/all', userController.getAllUsers);
 
-// Get user by ID
 // Get a user by ID
 router.get('/id/:id', userController.getUserById);
 
