@@ -108,8 +108,37 @@ const getUserById = async (req, res) => {
     }
 };
 
+// Delete user by ID
+const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        // Check if user exists
+        const [existingUser] = await pool.execute('SELECT * FROM User WHERE id = ?', [id]);
+        if (existingUser.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+        await pool.execute('DELETE FROM User WHERE id = ?', [id]);
+        res.status(200).json({
+            success: true,
+            message: 'User deleted successfully',
+            data: { id }
+        });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting user',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     createUser,
     getAllUsers,
-    getUserById
+    getUserById,
+    deleteUser
 }; 

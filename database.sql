@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS User (
 
 -- Create Project table (depends on User)
 CREATE TABLE IF NOT EXISTS Project (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     client_id VARCHAR(255),
     labour_contractor VARCHAR(255),
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS Project (
 
 -- Create Payment table (depends on Project)
 CREATE TABLE IF NOT EXISTS Payment (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT PRIMARY KEY,
     project_id INT,
     particulars TEXT,
     date DATE,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS Payment (
 
 -- Create Payment_plan table (depends on Project)
 CREATE TABLE IF NOT EXISTS Payment_plan (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT PRIMARY KEY,
     project_id INT,
     particulars TEXT,
     date DATE,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS Payment_plan (
 
 -- Create RateList table (depends on Project)
 CREATE TABLE IF NOT EXISTS RateList (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT PRIMARY KEY,
     project_id INT,
     head_mason_rate DECIMAL(15,2),
     mason_rate DECIMAL(15,2),
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS RateList (
 
 -- Create Drawing table (depends on Project)
 CREATE TABLE IF NOT EXISTS Drawing (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT PRIMARY KEY,
     project_id INT,
     particulars TEXT,
     file_url VARCHAR(255),
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS Drawing (
 
 -- Create Material table (depends on Project)
 CREATE TABLE IF NOT EXISTS Material (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT PRIMARY KEY,
     project_id INT,
     particulars TEXT,
     FOREIGN KEY (project_id) REFERENCES Project(id)
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS Material (
 
 -- Create MaterialTrackingEntry table (depends on Material)
 CREATE TABLE IF NOT EXISTS MaterialTrackingEntry (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT PRIMARY KEY,
     material_id INT,
     date DATE,
     received_quantity DECIMAL(15,2),
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS MaterialTrackingEntry (
 
 -- Create LabourBill table (depends on Project)
 CREATE TABLE IF NOT EXISTS LabourBill (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT PRIMARY KEY,
     project_id INT,
     date DATE,
     bar_bender VARCHAR(255),
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS LabourBill (
 
 -- Create LabourPayment table (depends on Project)
 CREATE TABLE IF NOT EXISTS LabourPayment (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT PRIMARY KEY,
     project_id INT,
     particulars TEXT,
     date DATE,
@@ -127,9 +127,27 @@ CREATE TABLE IF NOT EXISTS LabourPayment (
 
 -- Create ProjectSupervisor table (depends on Project and User)
 CREATE TABLE IF NOT EXISTS ProjectSupervisor (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT PRIMARY KEY,
     project_id INT,
     supervisor_id VARCHAR(255),
     FOREIGN KEY (project_id) REFERENCES Project(id),
     FOREIGN KEY (supervisor_id) REFERENCES User(id)
+);
+
+-- Create DailyReport table (depends on Project and Material)
+CREATE TABLE IF NOT EXISTS DailyReport (
+    id INT PRIMARY KEY,
+    project_id INT,
+    material_id INT,
+    material_dr_number VARCHAR(255),
+    particulars TEXT,
+    date DATE,
+    amount DECIMAL(15,2),
+    paid DECIMAL(15,2),
+    balance DECIMAL(15,2),
+    units VARCHAR(255),
+    quantity DECIMAL(15,2),
+    remarks TEXT,
+    FOREIGN KEY (project_id) REFERENCES Project(id),
+    FOREIGN KEY (material_id) REFERENCES Material(id)
 ); 
