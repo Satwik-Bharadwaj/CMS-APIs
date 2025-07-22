@@ -1,10 +1,10 @@
 module.exports = {
   KEYCLOAK_URL: "http://localhost:8080",
-  REALM: "Elva",
+  REALM: "elva",
   CLIENTS: [
     {
-      CLIENT_ID: "SBPatil",
-      CLIENT_SECRET: "i41yErAxbqhzcQ5xCy8EOsNNlSEcB41U",
+      CLIENT_ID: "sbpatil",
+      CLIENT_SECRET: "B7Xe3B2awgwVI99quW49yVFGmxcfSLDP",
     },
   ],
 };

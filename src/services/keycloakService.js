@@ -1,6 +1,6 @@
 const axios = require("axios");
-const { CLIENTS, KEYCLOAK_URL, REALM } = require("../config/keycloakConfig.js");
-const tokenStore = require("../config/tokenStore");
+const { CLIENTS, KEYCLOAK_URL, REALM } = require("../config/keyclo");
+const tokenStore = require("../config/tokenStore.js");
 
 exports.getToken = async (username, password, clientId = null) => {
   const clientConfig =

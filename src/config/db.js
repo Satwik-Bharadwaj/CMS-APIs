@@ -16,16 +16,19 @@ const dbConfig = {
 // Create connection pool
 const pool = mysql.createPool(dbConfig);
 
-// Test the connection
-pool
-  .getConnection()
-  .then((connection) => {
+// Test the connection (optional - won't crash if DB is not available)
+const testConnection = async () => {
+  try {
+    const connection = await pool.getConnection();
     console.log("Database connected successfully");
     connection.release();
-  })
-  .catch((err) => {
-    console.error("Error connecting to the database:", err);
-    process.exit(1);
-  });
+  } catch (error) {
+    console.warn("Database connection failed (continuing without DB):", error.message);
+    console.warn("Note: Set up MySQL database for full functionality");
+  }
+};
+
+// Test connection on startup
+testConnection();
 
 module.exports = pool;
