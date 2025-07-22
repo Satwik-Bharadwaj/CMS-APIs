@@ -36,7 +36,7 @@ const initializeDatabase = async () => {
         // Create Project table
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Project (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id INT PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
                 client_id VARCHAR(255),
                 labour_contractor VARCHAR(255),
@@ -58,7 +58,7 @@ const initializeDatabase = async () => {
         // Create Payment table
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Payment (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id INT PRIMARY KEY,
                 project_id INT,
                 particulars TEXT,
                 date DATE,
@@ -73,7 +73,7 @@ const initializeDatabase = async () => {
         // Create Payment_plan table
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Payment_plan (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id INT PRIMARY KEY,
                 project_id INT,
                 particulars TEXT,
                 date DATE,
@@ -86,7 +86,7 @@ const initializeDatabase = async () => {
         // Create RateList table
         await connection.query(`
             CREATE TABLE IF NOT EXISTS RateList (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id INT PRIMARY KEY,
                 project_id INT,
                 head_mason_rate DECIMAL(15,2),
                 mason_rate DECIMAL(15,2),
@@ -101,7 +101,7 @@ const initializeDatabase = async () => {
         // Create Drawing table
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Drawing (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id INT PRIMARY KEY,
                 project_id INT,
                 particulars TEXT,
                 file_url VARCHAR(255),
@@ -117,7 +117,7 @@ const initializeDatabase = async () => {
         // Create Material table
         await connection.query(`
             CREATE TABLE IF NOT EXISTS Material (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id INT PRIMARY KEY,
                 project_id INT,
                 particulars TEXT,
                 FOREIGN KEY (project_id) REFERENCES Project(id)
@@ -125,10 +125,31 @@ const initializeDatabase = async () => {
         `);
         console.log('Material table created successfully');
 
+        // Create DailyReport table
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS DailyReport (
+                id INT PRIMARY KEY,
+                project_id INT,
+                material_id INT,
+                material_dr_number VARCHAR(255),
+                particulars TEXT,
+                date DATE,
+                amount DECIMAL(15,2),
+                paid DECIMAL(15,2),
+                balance DECIMAL(15,2),
+                units VARCHAR(255),
+                quantity DECIMAL(15,2),
+                remarks TEXT,
+                FOREIGN KEY (project_id) REFERENCES Project(id),
+                FOREIGN KEY (material_id) REFERENCES Material(id)
+            );
+        `);
+        console.log('DailyReport table created successfully');
+
         // Create LabourBill table
         await connection.query(`
             CREATE TABLE IF NOT EXISTS LabourBill (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id INT PRIMARY KEY,
                 project_id INT,
                 date DATE,
                 bar_bender VARCHAR(255),
@@ -147,7 +168,7 @@ const initializeDatabase = async () => {
         // Create LabourPayment table
         await connection.query(`
             CREATE TABLE IF NOT EXISTS LabourPayment (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id INT PRIMARY KEY,
                 project_id INT,
                 particulars TEXT,
                 date DATE,
@@ -164,7 +185,7 @@ const initializeDatabase = async () => {
         // Create MaterialTrackingEntry table
         await connection.query(`
             CREATE TABLE IF NOT EXISTS MaterialTrackingEntry (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id INT PRIMARY KEY,
                 material_id INT,
                 date DATE,
                 received_quantity DECIMAL(15,2),
@@ -177,7 +198,7 @@ const initializeDatabase = async () => {
         // Create ProjectSupervisor table
         await connection.query(`
             CREATE TABLE IF NOT EXISTS ProjectSupervisor (
-                id INT AUTO_INCREMENT PRIMARY KEY,
+                id INT PRIMARY KEY,
                 project_id INT,
                 supervisor_id VARCHAR(255),
                 FOREIGN KEY (project_id) REFERENCES Project(id),

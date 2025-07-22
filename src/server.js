@@ -15,6 +15,7 @@ const labourBillRoutes = require('./routes/labourBill.routes');
 const labourPaymentRoutes = require('./routes/labourPayment.routes');
 const materialTrackingEntryRoutes = require('./routes/materialTrackingEntry.routes');
 const projectSupervisorRoutes = require('./routes/projectSupervisor.routes');
+const dailyReportRoutes = require('./routes/dailyReport.routes');
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use('/api/labour-bills', labourBillRoutes);
 app.use('/api/labour-payments', labourPaymentRoutes);
 app.use('/api/material-tracking-entries', materialTrackingEntryRoutes);
 app.use('/api/project-supervisors', projectSupervisorRoutes);
+app.use('/api/daily-reports', dailyReportRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {
