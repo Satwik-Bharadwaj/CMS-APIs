@@ -337,7 +337,15 @@ const deleteProject = async (req, res) => {
                 console.log('ProjectSupervisor table may not exist, skipping...');
             }
 
-            // 9. Finally, delete the project itself
+            // 9. Delete from DailyReport table (if it exists)
+            try {
+                await connection.execute('DELETE FROM DailyReport WHERE project_id = ?', [id]);
+                console.log('Deleted daily reports for project:', id);
+            } catch (error) {
+                console.log('DailyReport table may not exist, skipping...');
+            }
+
+            // 10. Finally, delete the project itself
             await connection.execute('DELETE FROM Project WHERE id = ?', [id]);
             console.log('Deleted project:', id);
 
@@ -359,6 +367,7 @@ const deleteProject = async (req, res) => {
                         'LabourBill',
                         'LabourPayment',
                         'ProjectSupervisor',
+                        'DailyReport',
                         'Project'
                     ]
                 }
@@ -379,6 +388,41 @@ const deleteProject = async (req, res) => {
             message: 'Error deleting project and associated data',
             error: error.message
         });
+    }
+};
+
+exports.getGeneralInformation = async (req, res) => {
+    try {
+        const [rows] = await pool.query(`
+            SELECT 
+                Project.id AS project_id,
+                User.username AS client_username,
+                Project.labour_contractor,
+                Project.address,
+                Project.total_budget
+            FROM Project
+            LEFT JOIN User ON Project.client_id = User.id
+        `);
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.updateGeneralInformation = async (req, res) => {
+    try {
+        const { client_id, labour_contractor, address, total_budget } = req.body;
+        const { id } = req.params;
+        const [result] = await pool.query(
+            `UPDATE Project SET client_id=?, labour_contractor=?, address=?, total_budget=? WHERE id=?`,
+            [client_id, labour_contractor, address, total_budget, id]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Project not found' });
+        }
+        res.json({ message: 'General information updated successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 };
 

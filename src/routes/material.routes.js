@@ -11,7 +11,4 @@ router.get('/all', materialController.getAllMaterials);
 // Update a material by ID
 router.put('/update/:id', materialController.updateMaterial);
 
-// Delete a material by ID
-router.delete('/delete/:id', materialController.deleteMaterial);
-
 module.exports = router; 

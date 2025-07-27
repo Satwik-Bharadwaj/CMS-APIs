@@ -2,10 +2,8 @@ const express = require('express');
 const router = express.Router();
 const dailyReportController = require('../controllers/dailyReport.controller');
 
-router.get('/', dailyReportController.getAllDailyReports);
-router.get('/:id', dailyReportController.getDailyReportById);
-router.post('/', dailyReportController.createDailyReport);
-router.put('/:id', dailyReportController.updateDailyReport);
-router.delete('/:id', dailyReportController.deleteDailyReport);
+router.get('/all', dailyReportController.getAllDailyReports);
+router.post('/create', dailyReportController.createDailyReport);
+router.put('/update/:id', dailyReportController.updateDailyReport);
 
 module.exports = router; 

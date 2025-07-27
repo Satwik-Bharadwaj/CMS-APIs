@@ -125,6 +125,34 @@ const updateRateList = async (req, res) => {
     }
 };
 
+exports.getRateLists = async (req, res) => {
+    try {
+        const [rows] = await pool.execute(`
+            SELECT head_mason_rate, mason_rate, m_helper_rate, w_helper_rate FROM RateList
+        `);
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.updateRateLists = async (req, res) => {
+    try {
+        const { head_mason_rate, mason_rate, m_helper_rate, w_helper_rate } = req.body;
+        const { id } = req.params;
+        const [result] = await pool.execute(
+            `UPDATE RateList SET head_mason_rate=?, mason_rate=?, m_helper_rate=?, w_helper_rate=? WHERE id=?`,
+            [head_mason_rate, mason_rate, m_helper_rate, w_helper_rate, id]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'RateList not found' });
+        }
+        res.json({ message: 'RateList updated successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
 module.exports = {
     createRateList,
     getAllRateLists,
