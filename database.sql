@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS Project (
 
 -- Create Payment table (depends on Project)
 CREATE TABLE IF NOT EXISTS Payment (
-    id INT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     project_id INT,
     particulars TEXT,
     date DATE,
