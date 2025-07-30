@@ -1,6 +1,8 @@
 const pool = require("../config/db");
-const tokenStore = require("../config/tokenStore");
 
+/**
+ * Create a new project
+ */
 const createProject = async (req, res) => {
   try {
     const {
@@ -17,25 +19,24 @@ const createProject = async (req, res) => {
     if (!name || !client_id || !created_by || !admin_id) {
       return res.status(400).json({
         success: false,
-        message:
-          "Missing required fields: name, client_id, created_by, and admin_id are required",
+        message: "Missing required fields: name, client_id, created_by, and admin_id are required",
       });
     }
 
     const query = `
-            INSERT INTO Project (
-                name,
-                client_id,
-                labour_contractor,
-                address,
-                total_budget,
-                created_by,
-                created_on,
-                updated_by,
-                updated_on,
-                admin_id
-            ) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, NOW(), ?)
-        `;
+      INSERT INTO Project (
+        name,
+        client_id,
+        labour_contractor,
+        address,
+        total_budget,
+        created_by,
+        created_on,
+        updated_by,
+        updated_on,
+        admin_id
+      ) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, NOW(), ?)
+    `;
 
     const [result] = await pool.execute(query, [
       name,
@@ -72,31 +73,28 @@ const createProject = async (req, res) => {
   }
 };
 
-// Get all projects
+/**
+ * Get all projects with related user information
+ */
 const getAllProjects = async (req, res) => {
-  const token = tokenStore.getToken();
-  const scope = tokenStore.getScope();
-  const userRoles = tokenStore.getUserRoles();
   try {
     const query = `
-            SELECT 
-                p.*,
-                u1.username as client_name,
-                u2.username as created_by_name,
-                u3.username as updated_by_name,
-                u4.username as admin_name
-            FROM Project p
-            LEFT JOIN User u1 ON p.client_id = u1.id
-            LEFT JOIN User u2 ON p.created_by = u2.id
-            LEFT JOIN User u3 ON p.updated_by = u3.id
-            LEFT JOIN User u4 ON p.admin_id = u4.id
-            ORDER BY p.created_on DESC
-        `;
+      SELECT 
+        p.*,
+        u1.username as client_name,
+        u2.username as created_by_name,
+        u3.username as updated_by_name,
+        u4.username as admin_name
+      FROM Project p
+      LEFT JOIN User u1 ON p.client_id = u1.id
+      LEFT JOIN User u2 ON p.created_by = u2.id
+      LEFT JOIN User u3 ON p.updated_by = u3.id
+      LEFT JOIN User u4 ON p.admin_id = u4.id
+      ORDER BY p.created_on DESC
+    `;
 
     const [projects] = await pool.execute(query);
-    console.log("Token:-", token);
-    console.log("SCOPES:-", scope);
-    console.log("User Roles:-", userRoles);
+
     res.status(200).json({
       success: true,
       data: projects,
@@ -111,7 +109,9 @@ const getAllProjects = async (req, res) => {
   }
 };
 
-// Update a project
+/**
+ * Update an existing project
+ */
 const updateProject = async (req, res) => {
   try {
     const { id } = req.params;
@@ -148,57 +148,62 @@ const updateProject = async (req, res) => {
 
     // Build update query dynamically
     const updateFields = [];
-    const updateValues = [];
+    const values = [];
 
     if (name !== undefined) {
       updateFields.push("name = ?");
-      updateValues.push(name);
+      values.push(name);
     }
     if (client_id !== undefined) {
       updateFields.push("client_id = ?");
-      updateValues.push(client_id);
+      values.push(client_id);
     }
     if (labour_contractor !== undefined) {
       updateFields.push("labour_contractor = ?");
-      updateValues.push(labour_contractor);
+      values.push(labour_contractor);
     }
     if (address !== undefined) {
       updateFields.push("address = ?");
-      updateValues.push(address);
+      values.push(address);
     }
     if (total_budget !== undefined) {
       updateFields.push("total_budget = ?");
-      updateValues.push(total_budget);
+      values.push(total_budget);
     }
     if (admin_id !== undefined) {
       updateFields.push("admin_id = ?");
-      updateValues.push(admin_id);
+      values.push(admin_id);
     }
 
-    // Always update updated_by and updated_on
-    updateFields.push("updated_by = ?");
-    updateFields.push("updated_on = NOW()");
-    updateValues.push(updated_by);
+    // Always update these fields
+    updateFields.push("updated_by = ?", "updated_on = NOW()");
+    values.push(updated_by, id);
 
-    // Add project id for WHERE clause
-    updateValues.push(id);
+    const query = `UPDATE Project SET ${updateFields.join(", ")} WHERE id = ?`;
 
-    const query = `
-            UPDATE Project 
-            SET ${updateFields.join(", ")}
-            WHERE id = ?
-        `;
+    await pool.execute(query, values);
 
-    await pool.execute(query, updateValues);
+    // Fetch and return updated project
+    const [updatedProject] = await pool.execute(
+      `SELECT 
+        p.*,
+        u1.username as client_name,
+        u2.username as created_by_name,
+        u3.username as updated_by_name,
+        u4.username as admin_name
+      FROM Project p
+      LEFT JOIN User u1 ON p.client_id = u1.id
+      LEFT JOIN User u2 ON p.created_by = u2.id
+      LEFT JOIN User u3 ON p.updated_by = u3.id
+      LEFT JOIN User u4 ON p.admin_id = u4.id
+      WHERE p.id = ?`,
+      [id]
+    );
 
     res.status(200).json({
       success: true,
       message: "Project updated successfully",
-      data: {
-        id: parseInt(id),
-        updated_by,
-        updated_on: new Date(),
-      },
+      data: updatedProject[0],
     });
   } catch (error) {
     console.error("Error updating project:", error);
@@ -210,29 +215,31 @@ const updateProject = async (req, res) => {
   }
 };
 
-// Get project by ID
+/**
+ * Get a single project by ID
+ */
 const getProjectById = async (req, res) => {
   try {
     const { id } = req.params;
 
     const query = `
-            SELECT 
-                p.*,
-                u1.username as client_name,
-                u2.username as created_by_name,
-                u3.username as updated_by_name,
-                u4.username as admin_name
-            FROM Project p
-            LEFT JOIN User u1 ON p.client_id = u1.id
-            LEFT JOIN User u2 ON p.created_by = u2.id
-            LEFT JOIN User u3 ON p.updated_by = u3.id
-            LEFT JOIN User u4 ON p.admin_id = u4.id
-            WHERE p.id = ?
-        `;
+      SELECT 
+        p.*,
+        u1.username as client_name,
+        u2.username as created_by_name,
+        u3.username as updated_by_name,
+        u4.username as admin_name
+      FROM Project p
+      LEFT JOIN User u1 ON p.client_id = u1.id
+      LEFT JOIN User u2 ON p.created_by = u2.id
+      LEFT JOIN User u3 ON p.updated_by = u3.id
+      LEFT JOIN User u4 ON p.admin_id = u4.id
+      WHERE p.id = ?
+    `;
 
-    const [projects] = await pool.execute(query, [id]);
+    const [project] = await pool.execute(query, [id]);
 
-    if (projects.length === 0) {
+    if (project.length === 0) {
       return res.status(404).json({
         success: false,
         message: "Project not found",
@@ -241,7 +248,7 @@ const getProjectById = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: projects[0],
+      data: project[0],
     });
   } catch (error) {
     console.error("Error fetching project:", error);
@@ -253,150 +260,111 @@ const getProjectById = async (req, res) => {
   }
 };
 
-// Delete project by ID
+/**
+ * Delete a project and all related records
+ */
 const deleteProject = async (req, res) => {
+  const connection = await pool.getConnection();
+  
   try {
     const { id } = req.params;
 
+    // Start transaction
+    await connection.beginTransaction();
+
     // Check if project exists
-    const [existingProject] = await pool.execute(
+    const [project] = await connection.execute(
       "SELECT * FROM Project WHERE id = ?",
       [id]
     );
 
-    if (existingProject.length === 0) {
+    if (project.length === 0) {
+      await connection.rollback();
       return res.status(404).json({
         success: false,
         message: "Project not found",
       });
     }
 
-    // Start a transaction to ensure data consistency
-    const connection = await pool.getConnection();
-    await connection.beginTransaction();
+    // Delete related records in order (respecting foreign key constraints)
+    const tablesToClean = [
+      'Payment_plan',
+      'Payment',
+      'RateList',
+      'Drawing',
+      'Material',
+      'LabourBill',
+      'LabourPayment',
+      'ProjectSupervisor'
+    ];
 
-    try {
-      // Delete all associated records from other tables
-      // Note: We'll delete in reverse order of foreign key dependencies
-
-      // 1. Delete from Payment_plan table
+    for (const table of tablesToClean) {
       try {
-        await connection.execute(
-          "DELETE FROM Payment_plan WHERE project_id = ?",
-          [id]
-        );
-        console.log("Deleted payment plans for project:", id);
+        await connection.execute(`DELETE FROM ${table} WHERE project_id = ?`, [id]);
       } catch (error) {
-        console.log("Payment_plan table may not exist, skipping...");
+        // Table might not exist, continue with other tables
+        console.warn(`Could not delete from ${table}:`, error.message);
       }
-
-      // 2. Delete from Payment table
-      await connection.execute("DELETE FROM Payment WHERE project_id = ?", [
-        id,
-      ]);
-      console.log("Deleted payments for project:", id);
-
-      // 3. Delete from RateList table (if it exists)
-      try {
-        await connection.execute("DELETE FROM RateList WHERE project_id = ?", [
-          id,
-        ]);
-        console.log("Deleted rate lists for project:", id);
-      } catch (error) {
-        console.log("RateList table may not exist, skipping...");
-      }
-
-      // 4. Delete from Drawing table (if it exists)
-      try {
-        await connection.execute("DELETE FROM Drawing WHERE project_id = ?", [
-          id,
-        ]);
-        console.log("Deleted drawings for project:", id);
-      } catch (error) {
-        console.log("Drawing table may not exist, skipping...");
-      }
-
-      // 5. Delete from Material table (if it exists)
-      try {
-        await connection.execute("DELETE FROM Material WHERE project_id = ?", [
-          id,
-        ]);
-        console.log("Deleted materials for project:", id);
-      } catch (error) {
-        console.log("Material table may not exist, skipping...");
-      }
-
-      // 6. Delete from LabourBill table (if it exists)
-      try {
-        await connection.execute(
-          "DELETE FROM LabourBill WHERE project_id = ?",
-          [id]
-        );
-        console.log("Deleted labour bills for project:", id);
-      } catch (error) {
-        console.log("LabourBill table may not exist, skipping...");
-      }
-
-      // 7. Delete from LabourPayment table (if it exists)
-      try {
-        await connection.execute(
-          "DELETE FROM LabourPayment WHERE project_id = ?",
-          [id]
-        );
-        console.log("Deleted labour payments for project:", id);
-      } catch (error) {
-        console.log("LabourPayment table may not exist, skipping...");
-      }
-
-      // 8. Delete from ProjectSupervisor table (if it exists)
-      try {
-        await connection.execute(
-          "DELETE FROM ProjectSupervisor WHERE project_id = ?",
-          [id]
-        );
-        console.log("Deleted project supervisors for project:", id);
-      } catch (error) {
-        console.log("ProjectSupervisor table may not exist, skipping...");
-      }
-
-      // 9. Finally, delete the project itself
-      await connection.execute("DELETE FROM Project WHERE id = ?", [id]);
-      console.log("Deleted project:", id);
-
-      // Commit the transaction
-      await connection.commit();
-
-      res.status(200).json({
-        success: true,
-        message: "Project and all associated data deleted successfully",
-        data: {
-          id: parseInt(id),
-          name: existingProject[0].name,
-          deletedTables: [
-            "Payment_plan",
-            "Payment",
-            "RateList",
-            "Drawing",
-            "Material",
-            "LabourBill",
-            "LabourPayment",
-            "ProjectSupervisor",
-            "Project",
-          ],
-        },
-      });
-    } catch (error) {
-      // Rollback the transaction if any error occurs
-      await connection.rollback();
-      throw error;
-    } finally {
-      connection.release();
     }
+
+    // Finally delete the project
+    await connection.execute("DELETE FROM Project WHERE id = ?", [id]);
+
+    // Commit transaction
+    await connection.commit();
+
+    res.status(200).json({
+      success: true,
+      message: "Project and all related records deleted successfully",
+    });
   } catch (error) {
+    // Rollback transaction on error
+    await connection.rollback();
     console.error("Error deleting project:", error);
     res.status(500).json({
       success: false,
-      message: "Error deleting project and associated data",
+      message: "Error deleting project",
+      error: error.message,
+    });
+  } finally {
+    connection.release();
+  }
+};
+
+/**
+ * Get projects by client ID
+ */
+const getProjectsByClient = async (req, res) => {
+  try {
+    const { clientId } = req.params;
+
+    const query = `
+      SELECT 
+        p.*,
+        u1.username as client_name,
+        u2.username as created_by_name,
+        u3.username as updated_by_name,
+        u4.username as admin_name
+      FROM Project p
+      LEFT JOIN User u1 ON p.client_id = u1.id
+      LEFT JOIN User u2 ON p.created_by = u2.id
+      LEFT JOIN User u3 ON p.updated_by = u3.id
+      LEFT JOIN User u4 ON p.admin_id = u4.id
+      WHERE p.client_id = ?
+      ORDER BY p.created_on DESC
+    `;
+
+    const [projects] = await pool.execute(query, [clientId]);
+
+    res.status(200).json({
+      success: true,
+      data: projects,
+    });
+  } catch (error) {
+    console.error("Error fetching projects by client:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching projects by client",
       error: error.message,
     });
   }
@@ -408,4 +376,5 @@ module.exports = {
   updateProject,
   getProjectById,
   deleteProject,
+  getProjectsByClient,
 };

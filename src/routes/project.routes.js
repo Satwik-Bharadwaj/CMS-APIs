@@ -17,7 +17,8 @@ router.put('/update/:id', projectController.updateProject);
 // Delete a project by ID
 router.delete('/delete/:id', projectController.deleteProject);
 
-router.get('/generalInformation', projectController.getGeneralInformation);
-router.put('update/generalInformation/:id', projectController.updateGeneralInformation);
+// TODO: Implement these functions in the project controller
+// router.get('/generalInformation', projectController.getGeneralInformation);
+// router.put('/update/generalInformation/:id', projectController.updateGeneralInformation);
 
 module.exports = router; 

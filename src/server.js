@@ -18,11 +18,27 @@ const labourPaymentRoutes = require("./routes/labourPayment.routes");
 
 const app = express();
 
+// Configure CORS properly for credentials
+const corsOptions = {
+  origin: 'http://localhost:3000', // Specific origin instead of wildcard
+  credentials: true, // Allow credentials
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200 // For legacy browser support
+};
+
 // Middleware
-app.use(cors());
-app.use(helmet());
+app.use(cors(corsOptions));
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
 app.use(morgan("dev"));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
+
 app.use(tokenMiddleware); // Add the token middleware
 
 // Test route

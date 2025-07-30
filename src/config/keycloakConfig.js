@@ -7,4 +7,17 @@ module.exports = {
       CLIENT_SECRET: "B7Xe3B2awgwVI99quW49yVFGmxcfSLDP",
     },
   ],
+  // Test users for development (bypass Keycloak)
+  TEST_USERS: [
+    {
+      username: "admin",
+      password: "admin123",
+      roles: ["Admin"]
+    },
+    {
+      username: "user", 
+      password: "user123",
+      roles: ["User"]
+    }
+  ]
 };
