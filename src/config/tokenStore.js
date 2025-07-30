@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { authLogger } = require("./logger");
 
 // In-memory store for token and decoded data
 let currentToken = null;
@@ -6,13 +7,17 @@ let decodedToken = null;
 
 exports.setToken = (token) => {
   currentToken = token;
-  //   console.log("Token set:", currentToken);
   if (token) {
     // Decode the token without verifying signature
     decodedToken = jwt.decode(token);
-    console.log("Decoded Token (1):", decodedToken);
+    authLogger.debug("Token decoded and stored", { 
+      userId: decodedToken?.sub,
+      username: decodedToken?.preferred_username,
+      roles: decodedToken?.realm_access?.roles 
+    });
   } else {
     decodedToken = null;
+    authLogger.debug("Token cleared");
   }
 };
 
@@ -36,7 +41,7 @@ exports.getUserRoles = () => {
 // Get user scope
 exports.getScope = () => {
   if (decodedToken) {
-    console.log("Decoded Token (2):", decodedToken);
+    authLogger.debug("Retrieving token scope", { scope: decodedToken.scope });
     return decodedToken.scope || "";
   }
   return "";

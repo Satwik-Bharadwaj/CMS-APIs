@@ -1,4 +1,4 @@
-const mysql = require("mysql2/promise");
+const mysql2 = require('mysql2/promise');
 require("dotenv").config();
 
 // Database configuration
@@ -14,7 +14,7 @@ const dbConfig = {
 };
 
 // Create connection pool
-const pool = mysql.createPool(dbConfig);
+const pool = mysql2.createPool(dbConfig);
 
 // Test the connection (optional - won't crash if DB is not available)
 const testConnection = async () => {

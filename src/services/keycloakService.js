@@ -1,6 +1,7 @@
 const axios = require("axios");
 const { CLIENTS, KEYCLOAK_URL, REALM } = require("../config/keycloakConfig.js");
 const tokenStore = require("../config/tokenStore.js");
+const { authLogger } = require("../config/logger.js");
 
 /**
  * Get access token from Keycloak using username/password
@@ -46,8 +47,11 @@ exports.getToken = async (username, password, clientId = null) => {
     return tokenData;
     
   } catch (error) {
-    console.error("Keycloak token error:", error.message);
-    throw error;
+    authLogger.error("Keycloak token error:", { 
+      error: error.message,
+      username: username 
+    });
+    return null;
   }
 };
 
@@ -88,7 +92,9 @@ exports.logoutUser = async (refresh_token, clientId = null) => {
     return { message: "Logout successful" };
     
   } catch (error) {
-    console.error("Keycloak logout error:", error.message);
+    authLogger.error("Keycloak logout error:", { 
+      error: error.message 
+    });
     throw error;
   }
 };
@@ -115,7 +121,9 @@ exports.getUserInfo = async (accessToken) => {
     return response.data;
     
   } catch (error) {
-    console.error("Keycloak userinfo error:", error.message);
+    authLogger.error("Keycloak userinfo error:", { 
+      error: error.message 
+    });
     throw error;
   }
 };
